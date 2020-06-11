@@ -1,0 +1,18 @@
+{
+  "require": {
+    "php"      : "^7.2",
+    "ext-pdo"  : "*",
+    "ext-gd"   : "*",
+    "ext-curl" : "*",
+    "ext-json" : "*",
+    "ext-zlib" : "*",
+    "ext-mbstring" : "*"
+  },
+  "autoload": {
+    "psr-0": {
+      "QuizProMaker": [
+        "classes/"
+      ]
+    }
+  }
+}
