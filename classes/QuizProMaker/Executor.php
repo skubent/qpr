@@ -278,6 +278,6 @@ class Executor {
             }
         }
         $currentGame->themes[] = $currentTheme;
-        var_dump($currentGame->getAsQuestionJson());
+        file_put_contents(Paths::getQuestionFilename($gameId), $currentGame->getAsQuestionJson());
     }
 }

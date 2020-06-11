@@ -91,17 +91,34 @@ class GameDescription {
         foreach ($this->themes as $theme) {
             $questions = [];
             foreach ($theme->questions as $question) {
-                $questions[] = [
-                    'type' => $question->type,
-
-                ];
+                $q = [];
+                if ($question->type != 'text') {
+                    $q['type'] = $question->type;
+                }
+                if ($question->questionPicture) {
+                    $q['picture_question'] = $question->questionPicture;
+                }
+                if ($question->answerPicture) {
+                    $q['picture_answer'] = $question->answerPicture;
+                }
+                $q['text'] = $question->question;
+                $an = [];
+                foreach ($question->getAnswers() as $answer) {
+                    $an[] = $answer;
+                }
+                $q['answers'] = $an;
+                $questions[] = $q;
             }
+            $themes[] = [
+                'name' => $theme->name,
+                'questions' => $questions
+            ];
         }
         $rv = [
             'name'         => 'Auto prepared game',
             'description'  => 'Auto prepared description',
             'timeToAnswer' => 30,
-            'themes'       => $this->themes,
+            'themes'       => $themes,
         ];
         return json_encode($rv, JSON_UNESCAPED_UNICODE);
     }

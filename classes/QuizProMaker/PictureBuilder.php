@@ -31,7 +31,11 @@ class PictureBuilder {
         $this->question  = $localQuestion->question;
         $this->answer    = $localQuestion->getMainAnswer();
 
-        if ($localQuestion->type != 'text' && $localQuestion->type != 'picture') {
+        if (
+            $localQuestion->type != 'text'
+            && $localQuestion->type != 'picture'
+            && $localQuestion->type != 'picture_answer'
+        ) {
             throw new \Exception("Cant create picture for question type {$localQuestion->type}");
         }
 
@@ -62,6 +66,15 @@ class PictureBuilder {
         } elseif ($this->mode == 'picture') {
             $this->prepareImage();
             $this->createPictureQuestion();
+            imagepng($this->image, $questionFileName);
+
+            $this->prepareImage();
+            $this->createPictureAnswer();
+            imagepng($this->image, $answerFileName);
+        } elseif ($this->mode == 'picture_answer') {
+            $this->prepareImage();
+
+            $this->createQuestion();
             imagepng($this->image, $questionFileName);
 
             $this->prepareImage();
