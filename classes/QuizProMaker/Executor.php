@@ -172,7 +172,6 @@ class Executor {
             foreach ($localTheme->questions as $localQuestion) {
                 $questionFileName = Paths::getQuestionPictureName($gameId, $localTheme->id, $localQuestion->id);
                 $answerFileName   = Paths::getAnswerPictureName($gameId, $localTheme->id, $localQuestion->id);
-
                 try {
                     $pictureBuilder = new PictureBuilder($localTheme, $localQuestion);
 

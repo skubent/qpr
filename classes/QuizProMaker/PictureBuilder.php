@@ -46,11 +46,7 @@ class PictureBuilder {
     }
 
     private function prepareImage(): void {
-        if ($this->mode == 'text') {
-            $this->image = imagecreatefrompng(BlankDescription::FILE);
-        } else {
-            $this->image = imagecreatefrompng(BlankDescription::FILE_PICTURE);
-        }
+        $this->image     = imagecreatefrompng(BlankDescription::FILE_PICTURE);
         $this->mainColor = imagecolorallocate($this->image, 0xd8, 0x0a, 0x05);
     }
 
@@ -119,25 +115,57 @@ class PictureBuilder {
         if ($height > BlankDescription::PICTURE_QUESTION_AREA_HEIGHT) {
             $scaleY = $height / BlankDescription::PICTURE_QUESTION_AREA_HEIGHT;
         }
+
         $scale = max($scaleX, $scaleY);
 
-        if (($width / $scale) > 500 || ($height / $scale) > 350) {
+        if ($scale == 1.0) {
+            // Типа считаем что мы можем увеличить это безобразие
+            if ($width < BlankDescription::PICTURE_QUESTION_AREA_WIDTH) {
+                $scaleX = BlankDescription::PICTURE_QUESTION_AREA_WIDTH / $width;
+            }
+
+            if ($height < BlankDescription::PICTURE_QUESTION_AREA_HEIGHT) {
+                $scaleY = BlankDescription::PICTURE_QUESTION_AREA_HEIGHT / $height;
+            }
+
+            if ($scaleX > 1.4 && $scaleY > 1.4) {
+                $scale = 1 / min($scaleX, $scaleY);
+            }
+        }
+
+        $newWidth  = $width / $scale;
+        $newHeight = $height / $scale;
+
+        if (
+            $newWidth > BlankDescription::PICTURE_QUESTION_AREA_WIDTH
+            || $newHeight > BlankDescription::PICTURE_QUESTION_AREA_HEIGHT
+        ) {
             echo $baseFileName . ' image resize strange size' . PHP_EOL;
             echo $width . 'x' . $height . PHP_EOL;
             echo $scale . PHP_EOL;
-            echo 'new width: ' . ($width / $scale) . PHP_EOL;
-            echo 'new height: ' . ($height / $scale) . PHP_EOL;
+            echo 'new width: ' . $newWidth . PHP_EOL;
+            echo 'new height: ' . $newHeight . PHP_EOL;
         }
+
+        $imagePositionY =
+            BlankDescription::QUESTION_TOP_Y +
+            (
+                (
+                    BlankDescription::QUESTION_BOTTOM_Y
+                    - BlankDescription::QUESTION_TOP_Y
+                    - $newHeight
+                ) / 2
+            );
 
         imagecopyresized(
             $this->image,
             $imageToAdd,
-            (BlankDescription::WIDTH - $width / $scale) / 2,
-            BlankDescription::PICTURE_QUESTION_MAIN_AREA_Y,
+            (BlankDescription::WIDTH - $newWidth) / 2,
+            $imagePositionY,
             0,
             0,
-            $width / $scale,
-            $height / $scale,
+            $newWidth,
+            $newHeight,
             $width,
             $height
         );
@@ -145,11 +173,10 @@ class PictureBuilder {
 
     private function createQuestion() {
         $fontSize = BlankDescription::QUESTION_FONT_SIZE;
-        $interval = BlankDescription::LINE_INTERVAL;
         if (mb_strlen($this->question) > 180) {
             $fontSize = BlankDescription::QUESTION_FONT_SIZE_SMALL;
-            $interval = BlankDescription::LINE_INTERVAL_SMALL;
         }
+        $interval = $fontSize * 1.5;
         $questionLines    = $this->explodeString($this->question, $fontSize);
         $splittedQuestion = implode("\n", $questionLines);
 
@@ -192,19 +219,19 @@ class PictureBuilder {
 
         $imageWidth = $textSize[2] - $textSize[0];
         $fontScale = 1;
-        if ($imageWidth > 550) {
-            $fontScale = 550 / $imageWidth;
+        if ($imageWidth > 1600) {
+            $fontScale = 1600 / $imageWidth;
         }
         $this->addText(
-            ($this->mode == 'text') ? BlankDescription::THEME_START_X : BlankDescription::PICTURE_QUESTION_X,
-            ($this->mode == 'text') ? BlankDescription::THEME_START_Y : BlankDescription::PICTURE_QUESTION_Y,
+            BlankDescription::THEME_START_X,
+            BlankDescription::THEME_START_Y,
             $text,
             BlankDescription::THEME_FONT_SIZE * $fontScale
         );
     }
 
     private function addAnswer() {
-        $this->addCenteredText(($this->mode == 'text') ? BlankDescription::ANSWER_START_Y : BlankDescription::PICTURE_ANSWER_START_Y, $this->answer);
+        $this->addCenteredText(BlankDescription::ANSWER_START_Y, $this->answer);
     }
 
     private function addCenteredText(int $y, string $text, ?int $fontSize = BlankDescription::QUESTION_FONT_SIZE): void {
