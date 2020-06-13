@@ -229,6 +229,7 @@ class Executor {
             $line = trim($l);
             if ($line == '!') {
                 $state = 'theme';
+                $currentTheme->questions[] = $currentQuestion;
                 $currentGame->themes[] = $currentTheme;
                 continue;
             }
@@ -277,6 +278,7 @@ class Executor {
                 }
             }
         }
+        $currentTheme->questions[] = $currentQuestion;
         $currentGame->themes[] = $currentTheme;
         file_put_contents(Paths::getQuestionFilename($gameId), $currentGame->getAsQuestionJson());
     }
